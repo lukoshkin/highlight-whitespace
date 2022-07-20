@@ -1,12 +1,13 @@
 # Trailing Whitespace
 
-Hereinafter, I refer to my plugin as TrailingWS, and similar others ─ as TWS.
+Hereinafter, I refer to my plugin as `TrailingWS`, and similar others ─ as TWS.
 <!-- 'and' is used here as 'while' -->
 
 Why to create another TWS plugin?
 
-1. TrailingWS leverages `matchadd` instead of `match`.
+1. `TrailingWS` leverages `matchadd` instead of `match`.
 1. Trailing whitespace in markdown files is highlighted with a different color.
+1. Written in Lua. Vimscript version is also present.
 1. I was configuring my vimrc, I didn't know about existing plugins.
 
 Let's talk about each point separately.
@@ -15,8 +16,14 @@ Let's talk about each point separately.
    `match`, `2match`, `3match`). Better not to occupy them, if one can achieve
    the same goals with `matchadd`.
 
-1. Trailing whitespace in markdown files is not a bad thing but sometimes is a
+1. Trailing whitespace in markdown files is not a bad thing and sometimes is a
    necessity. Thus, more mild colors than red should be used.
+
+1. Though the topic of Lua in Neovim is trending and may seem overhyped in some
+   aspects, the fact that it is a Lua plugin is convenient for those who are
+   not familiar with VimL and definitely handy for Lua programmers. Note there
+   is also a Vimscript version on a separate branch for plugin managers that do
+   not treat Lua code.
 
 1. Don't do that. I was not going to create a new plugin, though I ended up
    writing it. Googling _trailing whitespace vim_ terminated on [the first link
@@ -65,10 +72,29 @@ use {
    'lukoshkin/trailing-whitespace',
    config = function ()
       require'trailing-whitespace'.setup {
-         pattern = '\\s\\+$',
+         patterns = { '\\s\\+$' },
          palette = { markdown = 'RosyBrown' },
          default_color = 'PaleVioletRed',
       }
    end
 }
 ```
+
+The first pattern in the `patterns` table is not highlighted in the insert
+mode. Therefore, it makes sense to specify as the first element a pattern
+corresponding to **trailing** whitespace.
+
+
+## Future Development
+
+* It is possible to highlight tabs by specifying `patterns = { '\\s\\+$',
+  '\\t\\+' }`. <br> In future patches, the customization will also allow
+  setting a color for each pattern, e.g., in the palette table:
+
+   ```lua
+   palette = { python = {['\\s\\+$'] = 'PaleVioletRed', ['\\t\\+'] = 'plum4'} }
+   ```
+
+* I have a function for trimming trailing whitespace in my vimrc configuration.
+  Adding a similar one for trimming any unwanted whitespace (including tabs and
+  etc.) to `TrailingWS` is under the question.

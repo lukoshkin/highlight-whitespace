@@ -33,10 +33,11 @@ api.nvim_create_autocmd(
 function M.setup (conf)
   conf = conf or {}
 
-  tws.pattern = conf.pattern or '\\s\\+$'
+  tws.patterns = conf.patterns or { '\\s\\+$' }
   tws.palette = conf.palette or { markdown = 'RosyBrown' }
   tws.palette.default = conf.default_color or 'PaleVioletRed'
   M._set_up = true
 end
+
 
 return M
