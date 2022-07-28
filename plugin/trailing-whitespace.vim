@@ -24,13 +24,13 @@ function! MatchTWS ()
   "" to calls of `matchadd()` and `hi`, then the amount of work in
   "" the function is doubled.
   let l:pos = getpos('.')
-  if len(bufname()) == 0 || !&modifiable || search(g:tws_pattern) <= 0
+  if !&modifiable || search(g:tws_pattern) <= 0
     return
-  else
-    call setpos('.', l:pos)
   endif
 
+  call setpos('.', l:pos)
   let l:cmd = 'hi TrailingWS'
+
   if &ft != 'markdown'
     let l:cmd .= ' ctermbg='.g:tws_color_any.ctermbg
     let l:cmd .= ' guibg='.g:tws_color_any.guibg
@@ -64,7 +64,9 @@ endfunction
 
 
 function! NoMatchCL ()
-  let l:tws_pattern = '\%.l' . g:tws_pattern
+  "" '\%.l' - seems like has been added recently.
+  "" Will not work for Vimscript. (The Lua plugin does manage it.)
+  let l:tws_pattern = '\%' . line('.') . 'l' . g:tws_pattern
   "" fg colors should be set to some value, not NONE.
   hi CL_TWS ctermfg=231 guifg=#ffffff
   "" Otherwise, it will not work.
