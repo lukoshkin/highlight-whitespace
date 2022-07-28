@@ -12,15 +12,13 @@ function tws.match_tws ()
   --- the function is doubled.
   local tws_pattern = table.concat(tws.patterns, '\\|')
   local pos = api.nvim_win_get_cursor(0)
-  if #api.nvim_buf_get_name(0) == 0
-      or not vim.opt.modifiable
-        or vim.fn.search(tws_pattern) <= 0 then
+
+  if not vim.opt.modifiable:get()
+      or vim.fn.search(tws_pattern) <= 0 then
     return
-  else
-    api.nvim_win_set_cursor(0, pos)
   end
 
-
+  api.nvim_win_set_cursor(0, pos)
   local ft = api.nvim_buf_get_option(0, 'filetype')
   local bg = tws.palette[ft] or tws.palette.default
   api.nvim_set_hl(0, 'TrailingWS', { bg = bg })
