@@ -1,9 +1,9 @@
 # Trailing Whitespace
 
-Hereinafter, I refer to my plugin as `TrailingWS`, and similar others ─ as TWS.
-<!-- 'and' is used here as 'while' -->
+![demo](./demo.gif)
 
-Why to create another TWS plugin?
+Hereinafter, I refer to my plugin as `TrailingWS`, and similar others ─ as TWS.  
+Why to create another TWS plugin? <!-- 'and' is used ↑ here as 'while' -->
 
 1. `TrailingWS` leverages `matchadd` instead of `match`.
 1. Trailing whitespace in markdown files is highlighted with a different color.

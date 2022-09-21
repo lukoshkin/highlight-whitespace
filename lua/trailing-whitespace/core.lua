@@ -14,7 +14,7 @@ function tws.match_tws ()
   local pos = api.nvim_win_get_cursor(0)
 
   if not vim.opt.modifiable:get()
-      or vim.fn.search(tws_pattern) <= 0 then
+      or fn.search(tws_pattern) <= 0 then
     return
   end
 
@@ -40,7 +40,7 @@ function tws.clear_tws_match ()
   local wid = api.nvim_get_current_win()
   if tws.win_group_match[wid]
       and tws.win_group_match[wid] >= 0 then
-    vim.fn.matchdelete(tws.win_group_match[wid])
+    fn.matchdelete(tws.win_group_match[wid])
     tws.win_group_match[wid] = -1
   end
 end
@@ -48,13 +48,14 @@ end
 
 function tws.no_match_cl ()
   local wid = api.nvim_get_current_win()
+  -- local tws_pattern = '\\s\\+\\%.l\\%<.c$'  -- works improperly
   local tws_pattern = '\\%.l' .. tws.patterns[1]
   -- local tws_pattern = '\\%.l' .. table.concat(tws.patterns, '\\|\\%.l')
 
   --- fg color should have a not NONE value.
   api.nvim_set_hl(0, 'CL_TWS', { fg='#ffffff' })
   --- Otherwise, it will not work.
-  tws.win_cl_match[wid] = vim.fn.matchadd('CL_TWS', tws_pattern, 11)
+  tws.win_cl_match[wid] = fn.matchadd('CL_TWS', tws_pattern, 11)
   --- Default priority is 10, we set just a bit higher.
 end
 
@@ -62,7 +63,7 @@ end
 function tws.clear_no_match_cl ()
   local wid = api.nvim_get_current_win()
   if tws.win_cl_match[wid] then
-    vim.fn.matchdelete(tws.win_cl_match[wid])
+    fn.matchdelete(tws.win_cl_match[wid])
     tws.win_cl_match[wid] = nil
   end
 

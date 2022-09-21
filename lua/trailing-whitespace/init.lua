@@ -6,7 +6,7 @@ local M = {}
 local aug_tws = api.nvim_create_augroup('TrailingWS' , {clear=true})
 
 api.nvim_create_autocmd(
-  { 'BufWinEnter', 'WinEnter' }, {
+  { 'BufWinEnter', 'WinEnter', 'TextChanged' }, {
   callback = tws.match_tws,
   group = aug_tws,
 })
