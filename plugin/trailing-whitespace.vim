@@ -1,6 +1,6 @@
 "" Negative lookbehind since it is unlikely that it will be
 "" trailing underscores after a filename's extension.
-au! BufWinEnter,WinEnter *\(_\)\@<! call MatchTWS()
+au! BufWinEnter,WinEnter,TextChanged *\(_\)\@<! call MatchTWS()
 "" BufWinLeave should not trigger MatchTWS; otherwise, plugins
 "" like nvim-notify or fidget, that rely on floating windows, will
 "" clear match groups after their buffers are removed from a window.
@@ -83,3 +83,4 @@ function! ClearNoMatchCL ()
 
   call MatchTWS()
 endfunction
+
