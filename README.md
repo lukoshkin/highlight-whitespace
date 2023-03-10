@@ -2,8 +2,9 @@
 
 ![demo](./demo.gif)
 
-Hereinafter, I refer to my plugin as `TrailingWS`, and similar others ─ as TWS.  
-Why to create another TWS plugin? <!-- 'and' is used ↑ here as 'while' -->
+**Why to create another TWS plugin?**  
+(I refer to my plugin as `TrailingWS`, and similar others ─ as TWS.)
+ <!-- 'and' is used ↑ here as 'while' -->
 
 1. `TrailingWS` leverages `matchadd` instead of `match`.
 1. Trailing whitespace in markdown files is highlighted with a different color.
@@ -45,14 +46,16 @@ With [**vim-plug**](https://github.com/junegunn/vim-plug)
 Plug 'lukoshkin/trailing-whitespace', { 'branch': 'vimscript' }
 ```
 
+One can adapt it for other plugin managers!
+
 
 ## Customization
 
 Two ways to configure depending on the selected branch
 <!-- Omitting a punctuation at the end emphasizes the direction of meaning -->
 
-#### vimscript
-
+<details>
+<summary><Big><b>vimscript</b></Big></summary>
 Note you must specify both `ctermbg` and `guibg` values, even if you don't
 care about one of them. <br> Specifying other than `bg` keys has no effect.
 
@@ -61,9 +64,10 @@ let g:tws_pattern = '\s\+$'
 let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
 let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
 ```
+</details>
 
-#### master (Lua)
-
+<details open>
+<summary><Big><b>master (Lua)</b></Big></summary>
 For the Lua implementation, the functionality is a bit wider. <br> One can
 specify a trailing whitespace color per filetype.
 
@@ -83,6 +87,7 @@ use {
 The first pattern in the `patterns` table is not highlighted in the insert
 mode. Therefore, it makes sense to specify as the first element a pattern
 corresponding to **trailing** whitespace.
+</details>
 
 
 ## Future Development

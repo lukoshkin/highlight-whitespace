@@ -3,10 +3,9 @@ local api = vim.api
 local M = {}
 
 
-local aug_tws = api.nvim_create_augroup('TrailingWS' , {clear=true})
-
+local aug_tws = api.nvim_create_augroup('TrailingWS' , {})
 api.nvim_create_autocmd(
-  { 'BufWinEnter', 'WinEnter', 'TextChanged' }, {
+  { 'BufWinEnter', 'WinEnter', 'TextChanged', 'CompleteDone' }, {
   callback = tws.match_tws,
   group = aug_tws,
 })
@@ -18,7 +17,7 @@ api.nvim_create_autocmd(
 })
 
 api.nvim_create_autocmd(
-  'InsertEnter', {
+  { 'InsertEnter', 'CursorMovedI' }, {
   callback = tws.no_match_cl,
   group = aug_tws,
 })
@@ -26,6 +25,12 @@ api.nvim_create_autocmd(
 api.nvim_create_autocmd(
   'InsertLeave', {
   callback = tws.clear_no_match_cl,
+  group = aug_tws,
+})
+
+api.nvim_create_autocmd(
+  'QuitPre', {
+  callback = tws.prune_dicts,
   group = aug_tws,
 })
 
