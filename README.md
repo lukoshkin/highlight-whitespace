@@ -2,20 +2,47 @@
 
 ![demo](./demo.gif)
 
-<span style="color:PaleVioletRed"> red </span> color
-─ trailing whitespace in python (other than md)  
-<span style="color:RosyBrown"> brown </span> ─ in markdown
+Go to the [Current Colorscheme](#current-colorscheme) section
+to see what each color stands for.  
+(Unfortunately placing it here breaks syntax
+highlighting for all multi-line code blocks below it)
 
-<span style="color:#CDBE70"> yellow </span> color
-─ redundant (multiple) spaces in python  
-<span style="color:SkyBlue"> blue </span> ─ in markdown
+<!-- It breaks syntax highlighting of the code blocks below it for some reason
+$${\color{PaleVioletRed}red}\text{ color
+─ trailing whitespace in python (other than md)}$$
 
-<span style="color:coral"> orange </span> color
-─ a space before a comma in python  
-<span style="color:CadetBlue"> "green" </span> ─ in markdown
+$${\color{RosyBrown}brown}\text{ ─ in markdown}$$
 
-<span style="color:#8B668B"> purple </span> color
-─ tab indents instead of spaces
+---
+
+$${\color{#CDBE70}yellow}\text{ color
+─ redundant (multiple) spaces in python}$$
+
+$${\color{#87CEFF}blue}\text{ ─ in markdown}$$
+
+---
+
+$${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$$
+
+$${\color{#7AC5CD}"green"}\text{ ─ in markdown}$$
+
+---
+
+$${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$$
+--->
+
+<!-- Also works for text coloring (but not center-aligned and also breaks highlighting)
+${\color{PaleVioletRed}red}\text{ color ─ trailing whitespace in python (other than md)}$  
+${\color{RosyBrown}brown}\text{ ─ in markdown}$
+
+${\color{#CDBE70}yellow}\text{ color ─ redundant (multiple) spaces in python}$  
+${\color{#87CEFF}blue}\text{ ─ in markdown}$
+
+${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$  
+${\color{#7AC5CD}"green"}\text{ ─ in markdown}$
+
+${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$
+--->
 
 
 ## Installation
@@ -85,7 +112,6 @@ specify a color for each pattern and per filetype.
 
 `tws` - main pattern for trailing whitespace  
 `clear_on_winleave` - clear highlighting when switching to another window
-
 </details>
 
 
@@ -144,3 +170,28 @@ Let's talk about each point separately.
 
 1. Actually, it is much wider than just highlighting whitespace. You can come
    up with your own pattern and color specifically for each filetype.
+
+
+## Current Colorscheme
+
+$${\color{PaleVioletRed}red}\text{ color
+─ trailing whitespace in python (other than md)}$$
+
+$${\color{RosyBrown}brown}\text{ ─ in markdown}$$
+
+---
+
+$${\color{#CDBE70}yellow}\text{ color
+─ redundant (multiple) spaces in python}$$
+
+$${\color{#87CEFF}blue}\text{ ─ in markdown}$$
+
+---
+
+$${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$$
+
+$${\color{#7AC5CD}"green"}\text{ ─ in markdown}$$
+
+---
+
+$${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$$

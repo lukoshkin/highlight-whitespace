@@ -1,4 +1,4 @@
-local core = require'trailing-whitespace.core'
+local core = require'highlight-whitespace.core'
 local api = vim.api
 local M = {}
 
