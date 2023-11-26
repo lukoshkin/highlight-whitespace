@@ -58,7 +58,8 @@ function M.match_uws ()
     function (l) return l.group end, fn.getmatches())
 
   for pat, color in pairs(uws_pat_list) do
-    local name = 'HWS_' .. color
+    --- Create a valid group name from `color`.
+    local name = 'HWS_' .. color:gsub('[^a-zA-Z0-9_.@-]', '')
     local not_in_MG = not vim.tbl_contains(match_groups, name)
 
     --- If not registered - register, if broken or cleared with `clearmatches()`
