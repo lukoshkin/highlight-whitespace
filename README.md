@@ -47,10 +47,16 @@ ${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$
 
 ## Installation
 
-With [**Packer**](https://github.com/wbthomason/packer.nvim)
+With [**lazy.nvim**](https://github.com/folke/lazy.nvim)
 
 ```lua
-use 'lukoshkin/highlight-whitespace'
+"lukoshkin/highlight-whitespace"
+```
+
+With [**packer.nvim**](https://github.com/wbthomason/packer.nvim)
+
+```lua
+use "lukoshkin/highlight-whitespace"
 ```
 
 With [**vim-plug**](https://github.com/junegunn/vim-plug)
@@ -67,22 +73,42 @@ One can adapt the installation code for other plugin managers!
 Two ways to configure depending on the selected branch
 <!-- Omitting a punctuation at the end emphasizes the direction of meaning -->
 
-<details>
-<summary><Big><b>vimscript</b></Big></summary>
-Note you must specify both `ctermbg` and `guibg` values, even if you don't
-care about one of them. <br> Specifying other than `bg` keys has no effect.
-
-```vim
-let g:tws_pattern = '\s\+$'
-let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
-let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
-```
-</details>
-
 <details open>
 <summary><Big><b>master (Lua)</b></Big></summary>
-For the Lua implementation, the functionality is much wider. <br> One can
-specify a color for each pattern and per filetype.
+For the Lua implementation, the functionality is much wider.<br>One can
+specify a color for each pattern and per filetype. It can be a regular color
+name or hex code.
+
+<ul>
+<li><details open>
+<summary>lazy.nvim</summary>
+
+```lua
+  {
+    "lukoshkin/highlight-whitespace",
+    opts = {
+      tws = "\\s\\+$",
+      clear_on_winleave = false,
+      palette = {
+        markdown = {
+          tws = "RosyBrown",
+          ["\\(\\S\\)\\@<=\\s\\(\\.\\|,\\)\\@="] = "CadetBlue3",
+          ["\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@="] = "SkyBlue1",
+          ["\\t\\+"] = "plum4",
+        },
+        other = {
+          tws = "PaleVioletRed",
+          ["\\(\\S\\)\\@<=\\s\\(,\\)\\@="] = "coral1",
+          ["\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@="] = "LightGoldenrod3",
+          ["\\t\\+"] = "plum4",
+        }
+      }
+    }
+  },
+```
+</details></li>
+<li><details>
+<summary>packer.nvim</summary>
 
 ```lua
   use {
@@ -91,7 +117,7 @@ specify a color for each pattern and per filetype.
       require'highlight-whitespace'.setup {
         tws = '\\s\\+$',
         clear_on_winleave = false,
-        user_palette = {
+        palette = {
           markdown = {
             tws = 'RosyBrown',
             ['\\(\\S\\)\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
@@ -109,10 +135,26 @@ specify a color for each pattern and per filetype.
     end
   }
 ```
+</details></li>
+</ul>
 
 `tws` - main pattern for trailing whitespace  
 `clear_on_winleave` - clear highlighting when switching to another window
 </details>
+
+<details>
+<summary><Big><b>vimscript</b></Big></summary>
+Note you must specify both <code>ctermbg</code> and <code>guibg</code> values,
+even if you don't care about one of them. <br> Specifying other than
+<code>bg</code> keys has no effect.
+
+```vim
+let g:tws_pattern = '\s\+$'
+let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
+let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
+```
+</details>
+
 
 
 ## Future Development
@@ -173,22 +215,25 @@ Let's talk about each point separately.
 
 
 ## Current Colorscheme
+This section refers to the GIF at the README beginning
+
+---
 
 $${\color{PaleVioletRed}red}\text{ color
-─ trailing whitespace in python (other than md)}$$
+─ trailing whitespace in Python (other than md)}$$
 
 $${\color{RosyBrown}brown}\text{ ─ in markdown}$$
 
 ---
 
 $${\color{#CDBE70}yellow}\text{ color
-─ redundant (multiple) spaces in python}$$
+─ redundant (multiple) spaces in Python}$$
 
 $${\color{#87CEFF}blue}\text{ ─ in markdown}$$
 
 ---
 
-$${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$$
+$${\color{#FF7256}orange}\text{ color ─ a space before a comma in Python}$$
 
 $${\color{#7AC5CD}"green"}\text{ ─ in markdown}$$
 
