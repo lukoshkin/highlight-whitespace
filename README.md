@@ -50,7 +50,10 @@ ${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$
 With [**lazy.nvim**](https://github.com/folke/lazy.nvim)
 
 ```lua
-"lukoshkin/highlight-whitespace"
+{
+  "lukoshkin/highlight-whitespace",
+  config=true,
+}
 ```
 
 With [**packer.nvim**](https://github.com/wbthomason/packer.nvim)
@@ -84,56 +87,60 @@ name or hex code.
 <summary>lazy.nvim</summary>
 
 ```lua
-  {
-    "lukoshkin/highlight-whitespace",
-    opts = {
-      tws = "\\s\\+$",
-      clear_on_winleave = false,
-      palette = {
-        markdown = {
-          tws = "RosyBrown",
-          ["\\(\\S\\)\\@<=\\s\\(\\.\\|,\\)\\@="] = "CadetBlue3",
-          ["\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@="] = "SkyBlue1",
-          ["\\t\\+"] = "plum4",
-        },
-        other = {
-          tws = "PaleVioletRed",
-          ["\\(\\S\\)\\@<=\\s\\(,\\)\\@="] = "coral1",
-          ["\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@="] = "LightGoldenrod3",
-          ["\\t\\+"] = "plum4",
-        }
+{
+  "lukoshkin/highlight-whitespace",
+  opts = {
+    tws = "\\s\\+$",
+    clear_on_winleave = false,
+    palette = {
+      markdown = {
+        tws = 'RosyBrown',
+        ['\\S\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
+        ['\\S\\@<= \\{2,\\}\\S\\@='] = 'SkyBlue1',
+        ['\\t\\+'] = 'plum4',
+      },
+      other = {
+        tws = 'PaleVioletRed',
+        ['\\S\\@<=\\s,\\@='] = 'coral1',
+        ['\\S\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\S\\@=\\(#\\|--\\)\\@!'] = 'LightGoldenrod3',
+        ['\\(#\\|--\\)\\@<= \\{2,\\}\\S\\@='] = '#3B3B3B',
+        ['\\S\\@<= \\{3,\\}\\(#\\|--\\)\\@='] = '#3B3B3B',
+        ['\\t\\+'] = 'plum4',
       }
     }
-  },
+  }
+}
 ```
 </details></li>
 <li><details>
 <summary>packer.nvim</summary>
 
 ```lua
-  use {
-    'lukoshkin/highlight-whitespace',
-    config = function ()
-      require'highlight-whitespace'.setup {
-        tws = '\\s\\+$',
-        clear_on_winleave = false,
-        palette = {
-          markdown = {
-            tws = 'RosyBrown',
-            ['\\(\\S\\)\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
-            ['\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@='] = 'SkyBlue1',
-            ['\\t\\+'] = 'plum4',
-          },
-          other = {
-            tws = 'PaleVioletRed',
-            ['\\(\\S\\)\\@<=\\s\\(,\\)\\@='] = 'coral1',
-            ['\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@='] = 'LightGoldenrod3',
-            ['\\t\\+'] = 'plum4',
-          }
+use {
+  'lukoshkin/highlight-whitespace',
+  config = function ()
+    require'highlight-whitespace'.setup {
+      tws = '\\s\\+$',
+      clear_on_winleave = false,
+      palette = {
+        markdown = {
+          tws = 'RosyBrown',
+          ['\\S\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
+          ['\\S\\@<= \\{2,\\}\\S\\@='] = 'SkyBlue1',
+          ['\\t\\+'] = 'plum4',
+        },
+        other = {
+          tws = 'PaleVioletRed',
+          ['\\S\\@<=\\s,\\@='] = 'coral1',
+          ['\\S\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\S\\@=\\(#\\|--\\)\\@!'] = 'LightGoldenrod3',
+          ['\\(#\\|--\\)\\@<= \\{2,\\}\\S\\@='] = '#3B3B3B',
+          ['\\S\\@<= \\{3,\\}\\(#\\|--\\)\\@='] = '#3B3B3B',
+          ['\\t\\+'] = 'plum4',
         }
       }
-    end
-  }
+    }
+  end
+}
 ```
 </details></li>
 </ul>
@@ -221,6 +228,9 @@ This section refers to the GIF at the README beginning
 
 $${\color{PaleVioletRed}red}\text{ color
 ─ trailing whitespace in Python (other than md)}$$
+
+$${\color{#3B3B3B}dark\ gray}\text{
+─ leading and trailing whitespace in comment sections}$$
 
 $${\color{RosyBrown}brown}\text{ ─ in markdown}$$
 

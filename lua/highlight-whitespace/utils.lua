@@ -8,15 +8,16 @@ M.default = {
   palette = {
     markdown = {
       tws = 'RosyBrown',
-      ['\\(\\S\\)\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
-      ['\\(\\S\\)\\@<= \\{2,\\}\\(\\S\\)\\@='] = 'SkyBlue1',
+      ['\\S\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
+      ['\\S\\@<= \\{2,\\}\\S\\@='] = 'SkyBlue1',
       ['\\t\\+'] = 'plum4',
     },
     other = {
       tws = 'PaleVioletRed',
-      ['\\(\\S\\)\\@<=\\s\\(,\\)\\@='] = 'coral1',
-      ['\\(\\S\\)\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\(\\S\\)\\@='] = 'LightGoldenrod3',
-      ['\\(#\\|--\\)\\@<= \\{2,\\}\\(\\S\\)\\@='] = '#3B3B3B',
+      ['\\S\\@<=\\s,\\@='] = 'coral1',
+      ['\\S\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\S\\@=\\(#\\|--\\)\\@!'] = 'LightGoldenrod3',
+      ['\\(#\\|--\\)\\@<= \\{2,\\}\\S\\@='] = '#3B3B3B',
+      ['\\S\\@<= \\{3,\\}\\(#\\|--\\)\\@='] = '#3B3B3B',
       ['\\t\\+'] = 'plum4',
     }
   }
@@ -34,10 +35,30 @@ local function is_valid_color(color)
   return false
 end
 
-function M.check_colors(palette)
-  local colors = vim.tbl_values(vim.tbl_map(vim.tbl_values, palette))
+function M.check_colors(cfg)
+  local colors = vim.tbl_values(vim.tbl_map(vim.tbl_values, cfg.palette))
   local booleans = vim.tbl_map(is_valid_color, vim.tbl_flatten(colors))
-  return not vim.tbl_contains(booleans, false)
+
+  if vim.tbl_contains(booleans, false) then
+    cfg.palette = M.default.palette
+    vim.notify(' Default palette is loaded instead',
+      vim.log.levels.WARN, { title = 'highlight-whitespace', })
+  end
+end
+
+function M.check_config_conforms(cfg)
+  local allowed_keys = vim.tbl_keys(M.default)
+  local conforms = not vim.tbl_contains(
+    vim.tbl_map(function(key)
+      return vim.tbl_contains(allowed_keys, key)
+    end, vim.tbl_keys(cfg)
+    ),
+    false
+  )
+  if not conforms then
+    vim.notify(' Something strange about your config!',
+      vim.log.levels.WARN, { title = 'highlight-whitespace' })
+  end
 end
 
 function M.check_deprecated(cfg)

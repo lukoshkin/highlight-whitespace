@@ -7,11 +7,8 @@ local M = {}
 function M.setup(cfg)
   core.cfg = vim.tbl_extend("keep", cfg or {}, utils.default)
   utils.check_deprecated(core.cfg)
-  if not utils.check_colors(core.cfg.palette) then
-    core.cfg.palette = utils.default.palette
-    vim.notify(' Default palette is loaded instead',
-      vim.log.levels.WARN, { title = 'highlight-whitespace', })
-  end
+  utils.check_config_conforms(core.cfg)
+  utils.check_colors(core.cfg)
 
   vim.tbl_map(function(ft)
     ft[core.cfg.tws] = ft.tws
