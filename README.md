@@ -32,18 +32,17 @@ $${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$$
 --->
 
 <!-- Also works for text coloring (but not center-aligned and also breaks highlighting)
-${\color{PaleVioletRed}red}\text{ color ─ trailing whitespace in python (other than md)}$  
+${\color{PaleVioletRed}red}\text{ color ─ trailing whitespace in python (other than md)}$
 ${\color{RosyBrown}brown}\text{ ─ in markdown}$
 
-${\color{#CDBE70}yellow}\text{ color ─ redundant (multiple) spaces in python}$  
+${\color{#CDBE70}yellow}\text{ color ─ redundant (multiple) spaces in python}$
 ${\color{#87CEFF}blue}\text{ ─ in markdown}$
 
-${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$  
+${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$
 ${\color{#7AC5CD}"green"}\text{ ─ in markdown}$
 
 ${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$
 --->
-
 
 ## Installation
 
@@ -70,10 +69,10 @@ Plug 'lukoshkin/highlight-whitespace', { 'branch': 'vimscript' }
 
 One can adapt the installation code for other plugin managers!
 
-
 ## Customization
 
 Two ways to configure depending on the selected branch
+
 <!-- Omitting a punctuation at the end emphasizes the direction of meaning -->
 
 <details open>
@@ -91,7 +90,7 @@ name or hex code.
   "lukoshkin/highlight-whitespace",
   opts = {
     tws = "\\s\\+$",
-    clear_on_winleave = false,
+    clear_on_bufleave = false,
     palette = {
       markdown = {
         tws = 'RosyBrown',
@@ -111,6 +110,7 @@ name or hex code.
   }
 }
 ```
+
 </details></li>
 <li><details>
 <summary>packer.nvim</summary>
@@ -121,7 +121,7 @@ use {
   config = function ()
     require'highlight-whitespace'.setup {
       tws = '\\s\\+$',
-      clear_on_winleave = false,
+      clear_on_bufleave = false,
       palette = {
         markdown = {
           tws = 'RosyBrown',
@@ -142,11 +142,14 @@ use {
   end
 }
 ```
+
 </details></li>
 </ul>
 
 `tws` - main pattern for trailing whitespace  
-`clear_on_winleave` - clear highlighting when switching to another window
+`clear_on_bufleave` - clear highlighting in the old buffer before switching to
+another
+
 </details>
 
 <details>
@@ -160,35 +163,34 @@ let g:tws_pattern = '\s\+$'
 let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
 let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
 ```
+
 </details>
-
-
 
 ## Future Development
 
-* :heavy_check_mark: ~~It is possible to highlight tabs by specifying `patterns
-  = { '\\s\\+$', '\\t\\+' }`. <br> In future patches, the customization will
+- :heavy_check_mark: ~~It is possible to highlight tabs by specifying `patterns
+= { '\\s\\+$', '\\t\\+' }`. <br> In future patches, the customization will
   also allow setting a color for each pattern, e.g., in the palette table:~~
 
-   ```lua
-   palette = { python = {['\\s\\+$'] = 'PaleVioletRed', ['\\t\\+'] = 'plum4'} }
-   ```
+  ```lua
+  palette = { python = {['\\s\\+$'] = 'PaleVioletRed', ['\\t\\+'] = 'plum4'} }
+  ```
 
-* I have a function for trimming trailing whitespace in my "vimrc"
+- I have a function for trimming trailing whitespace in my "vimrc"
   configuration. Adding a similar one for trimming any unwanted whitespace
   (including tabs and etc.) to the plugin is under the question.
 
-* The approach with `matchadd` + `matchdelete` + `nvim_set_hl` might be not the
+- The approach with `matchadd` + `matchdelete` + `nvim_set_hl` might be not the
   most optimal. One of the other options to test will be looping over each line
   of a document looking for a pattern (lua's `string.find` or vim's
   `matchstrpos`) and then dynamically adding highlighting with
   `nvim_buf_add_highlight`.
 
-
 ## Story
 
-***Why to create another HWS plugin?***  
+**_Why to create another HWS plugin?_**  
 (I refer to my plugin as `HighlightWS`, and similar others ─ as HWS.)
+
  <!-- 'and' is used ↑ here as 'while' -->
 
 1. `HighlightWS` leverages `matchadd` instead of `match`.
@@ -220,24 +222,30 @@ Let's talk about each point separately.
 1. Actually, it is much wider than just highlighting whitespace. You can come
    up with your own pattern and color specifically for each filetype.
 
-
 ## Current Colorscheme
+
 This section refers to the GIF at the README beginning
 
 ---
 
-$${\color{PaleVioletRed}red}\text{ color
-─ trailing whitespace in Python (other than md)}$$
+$$
+{\color{PaleVioletRed}red}\text{ color
+─ trailing whitespace in Python (other than md)}
+$$
 
-$${\color{#3B3B3B}dark\ gray}\text{
-─ leading and trailing whitespace in comment sections}$$
+$$
+{\color{#3B3B3B}dark\ gray}\text{
+─ leading and trailing whitespace in comment sections}
+$$
 
 $${\color{RosyBrown}brown}\text{ ─ in markdown}$$
 
 ---
 
-$${\color{#CDBE70}yellow}\text{ color
-─ redundant (multiple) spaces in Python}$$
+$$
+{\color{#CDBE70}yellow}\text{ color
+─ redundant (multiple) spaces in Python}
+$$
 
 $${\color{#87CEFF}blue}\text{ ─ in markdown}$$
 

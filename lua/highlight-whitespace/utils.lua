@@ -2,27 +2,26 @@ local M = {}
 local api = vim.api
 
 M.default = {
-  tws = '\\s\\+$',
-  clear_on_winleave = false,
-  -- filetype_blacklist = { 'help' },
+  tws = "\\s\\+$",
+  clear_on_bufleave = false,
+  filetype_blacklist = {},
   palette = {
     markdown = {
-      tws = 'RosyBrown',
-      ['\\S\\@<=\\s\\(\\.\\|,\\)\\@='] = 'CadetBlue3',
-      ['\\S\\@<= \\{2,\\}\\S\\@='] = 'SkyBlue1',
-      ['\\t\\+'] = 'plum4',
+      tws = "RosyBrown",
+      ["\\S\\@<=\\s\\(\\.\\|,\\)\\@="] = "CadetBlue3",
+      ["\\S\\@<= \\{2,\\}\\S\\@="] = "SkyBlue1",
+      ["\\t\\+"] = "plum4",
     },
     other = {
-      tws = 'PaleVioletRed',
-      ['\\S\\@<=\\s,\\@='] = 'coral1',
-      ['\\S\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\S\\@=\\(#\\|--\\)\\@!'] = 'LightGoldenrod3',
-      ['\\(#\\|--\\)\\@<= \\{2,\\}\\S\\@='] = '#3B3B3B',
-      ['\\S\\@<= \\{3,\\}\\(#\\|--\\)\\@='] = '#3B3B3B',
-      ['\\t\\+'] = 'plum4',
-    }
-  }
+      tws = "PaleVioletRed",
+      ["\\S\\@<=\\s,\\@="] = "coral1",
+      ["\\S\\@<=\\(#\\|--\\)\\@<! \\{2,3\\}\\S\\@=\\(#\\|--\\)\\@!"] = "LightGoldenrod3",
+      ["\\(#\\|--\\)\\@<= \\{2,\\}\\S\\@="] = "#3B3B3B",
+      ["\\S\\@<= \\{3,\\}\\(#\\|--\\)\\@="] = "#3B3B3B",
+      ["\\t\\+"] = "plum4",
+    },
+  },
 }
-
 
 local function is_valid_color(color)
   local is_valid = api.nvim_get_color_by_name(color) ~= -1
@@ -30,8 +29,8 @@ local function is_valid_color(color)
     return true
   end
 
-  local err_msg = ' Invalid color: ' .. color
-  vim.notify(err_msg, vim.log.levels.ERROR, { title = 'highlight-whitespace' })
+  local err_msg = " Invalid color: " .. color
+  vim.notify(err_msg, vim.log.levels.ERROR, { title = "highlight-whitespace" })
   return false
 end
 
@@ -41,8 +40,11 @@ function M.check_colors(cfg)
 
   if vim.tbl_contains(booleans, false) then
     cfg.palette = M.default.palette
-    vim.notify(' Default palette is loaded instead',
-      vim.log.levels.WARN, { title = 'highlight-whitespace', })
+    vim.notify(
+      " Default palette is loaded instead",
+      vim.log.levels.WARN,
+      { title = "highlight-whitespace" }
+    )
   end
 end
 
@@ -51,27 +53,39 @@ function M.check_config_conforms(cfg)
   local conforms = not vim.tbl_contains(
     vim.tbl_map(function(key)
       return vim.tbl_contains(allowed_keys, key)
-    end, vim.tbl_keys(cfg)
-    ),
+    end, vim.tbl_keys(cfg)),
     false
   )
   if not conforms then
-    vim.notify(' Something strange about your config!',
-      vim.log.levels.WARN, { title = 'highlight-whitespace' })
+    vim.notify(
+      " Something strange about your config!",
+      vim.log.levels.WARN,
+      { title = "highlight-whitespace" }
+    )
   end
 end
 
 function M.check_deprecated(cfg)
   if cfg.user_palette ~= nil then
-    vim.notify(' `user_palette` key is deprecated! Use `palette` instead.',
-      vim.log.levels.WARN, { title = 'highlight-whitespace' })
+    vim.notify(
+      " `user_palette` key is deprecated! Use `palette` instead.",
+      vim.log.levels.WARN,
+      { title = "highlight-whitespace" }
+    )
   end
   if cfg.patterns ~= nil or cfg.default_color ~= nil then
-    local msg = ' Your configuration setup is deprecated!'
-    msg = msg .. ' Please, follow the instructions at\n https://github.com/'
-    msg = msg .. 'lukoshkin/highlight-whitespace#customization'
-    vim.notify(msg, vim.log.levels.WARN, { title = 'highlight-whitespace' })
+    local msg = " Your configuration setup is deprecated!"
+    msg = msg .. " Please, follow the instructions at\n https://github.com/"
+    msg = msg .. "lukoshkin/highlight-whitespace#customization"
+    vim.notify(msg, vim.log.levels.WARN, { title = "highlight-whitespace" })
   end
 end
+
+-- function M.only_normal_windows()
+--   local normal_windows = vim.tbl_filter(function(key)
+--     return api.nvim_win_get_config(key).relative == ""
+--   end, api.nvim_tabpage_list_wins(0))
+--   return normal_windows
+-- end
 
 return M
