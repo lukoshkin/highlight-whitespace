@@ -3,6 +3,11 @@ local utils = require "highlight-whitespace.utils"
 local api = vim.api
 local M = {}
 
+local function is_buf_ignored(buf)
+  local buftype = buf.buftype
+  return buftype == "nofile" or buftype == "prompt" or buftype == "terminal"
+end
+
 function M.setup(cfg)
   core.cfg = vim.tbl_extend("keep", cfg or {}, utils.default)
   utils.check_deprecated(core.cfg)
@@ -26,24 +31,47 @@ function M.setup(cfg)
     table.insert(match_uws_events, "BufEnter")
   end
   api.nvim_create_autocmd(match_uws_events, {
-    callback = core.match_uws,
+    callback = function ()
+      if is_buf_ignored(vim.bo) then
+        return
+      end
+      core.match_uws()
+    end,
   })
   api.nvim_create_autocmd("BufWinEnter", {
-    callback = core.get_matches_from_cache,
+    callback = function ()
+      if is_buf_ignored(vim.bo) then
+        return
+      end
+      core.get_matches_from_cache()
+    end,
     group = aug_hws,
   })
   api.nvim_create_autocmd("BufHidden", {
     callback = function(args)
+      if is_buf_ignored(vim.bo) then
+        return
+      end
       core.save_matches_to_cache_and_clear(args.buf)
     end,
     group = aug_hws,
   })
   api.nvim_create_autocmd({ "InsertEnter", "CursorMovedI" }, {
-    callback = core.no_match_cl,
+    callback = function()
+      if is_buf_ignored(vim.bo) then
+        return
+      end
+      core.no_match_cl()
+    end,
     group = aug_hws,
   })
   api.nvim_create_autocmd("InsertLeave", {
-    callback = core.clear_no_match_cl,
+    callback = function ()
+      if is_buf_ignored(vim.bo) then
+        return
+      end
+      core.clear_no_match_cl()
+    end,
     group = aug_hws,
   })
   api.nvim_create_autocmd("QuitPre", {
