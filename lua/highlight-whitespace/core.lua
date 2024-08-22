@@ -99,12 +99,15 @@ function M.save_matches_to_cache_and_clear(args)
   local bnr = (args or {}).buf or fn.bufnr()
   local bname = api.nvim_buf_get_name(bnr)
   local wid = fn.bufwinid(bnr)
-  M.buffer_cached_matches[bname] = fn.getmatches(wid)
-  M.win_group_match[bname] = nil
+  local ok, matches = pcall(fn.getmatches, wid)
+  if ok then
+    M.buffer_cached_matches[bname] = matches
+    M.win_group_match[bname] = nil
 
-  --- TODO: maybe add check for non-modifiable buffers?
-  if api.nvim_win_get_config(wid).relative == "" then
-    fn.clearmatches()
+    --- TODO: maybe add check for non-modifiable buffers?
+    if api.nvim_win_get_config(wid).relative == "" then
+      fn.clearmatches()
+    end
   end
 end
 
