@@ -1,4 +1,5 @@
 local core = require "highlight-whitespace.core"
+local wrap_fn = require "highlight-whitespace.wrap_fn"
 local utils = require "highlight-whitespace.utils"
 local api = vim.api
 local M = {}
@@ -15,41 +16,26 @@ function M.setup(cfg)
   end, core.cfg.palette)
 
   local aug_hws = api.nvim_create_augroup("HighlightWS", {})
-  local match_uws_events = { "TextChanged", "CompleteDone" }
-  if core.cfg.clear_on_bufleave then
-    api.nvim_create_autocmd("BufLeave", {
+  local create_autocmd = function(events, callback)
+    api.nvim_create_autocmd(events, {
       callback = function(args)
-        core.clear_uws_match(args.buf)
+        callback(args)
       end,
       group = aug_hws,
     })
+  end
+
+  local match_uws_events = { "TextChanged", "CompleteDone" }
+  if core.cfg.clear_on_bufleave then
+    create_autocmd("BufLeave", core.clear_uws_match)
     table.insert(match_uws_events, "BufEnter")
   end
-  api.nvim_create_autocmd(match_uws_events, {
-    callback = core.match_uws,
-  })
-  api.nvim_create_autocmd("BufWinEnter", {
-    callback = core.get_matches_from_cache,
-    group = aug_hws,
-  })
-  api.nvim_create_autocmd("BufHidden", {
-    callback = function(args)
-      core.save_matches_to_cache_and_clear(args.buf)
-    end,
-    group = aug_hws,
-  })
-  api.nvim_create_autocmd({ "InsertEnter", "CursorMovedI" }, {
-    callback = core.no_match_cl,
-    group = aug_hws,
-  })
-  api.nvim_create_autocmd("InsertLeave", {
-    callback = core.clear_no_match_cl,
-    group = aug_hws,
-  })
-  api.nvim_create_autocmd("QuitPre", {
-    callback = core.prune_dicts,
-    group = aug_hws,
-  })
+  create_autocmd(match_uws_events, wrap_fn.match_uws)
+  create_autocmd("BufWinEnter", wrap_fn.get_matches_from_cache)
+  create_autocmd("BufHidden", wrap_fn.save_matches_to_cache_and_clear)
+  create_autocmd({ "InsertEnter", "CursorMovedI" }, wrap_fn.no_match_cl)
+  create_autocmd("InsertLeave", wrap_fn.clear_no_match_cl)
+  create_autocmd("QuitPre", core.prune_dicts)
   M._set_up = true
 end
 

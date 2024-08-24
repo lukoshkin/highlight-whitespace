@@ -21,21 +21,20 @@ local function is_in_match_groups(gname, wid)
 end
 
 local function two_wins_with_one_buffer_on_tabpage()
-    local wins = vim.api.nvim_tabpage_list_wins(0)
-    local buf_seen = {}
-    for _, win in ipairs(wins) do
-        local buf = vim.api.nvim_win_get_buf(win)
-        if buf_seen[buf] then
-            return true
-        end
-        buf_seen[buf] = true
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+  local buf_seen = {}
+  for _, win in ipairs(wins) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if buf_seen[buf] then
+      return true
     end
-    return false
+    buf_seen[buf] = true
+  end
+  return false
 end
 
-
-function M.clear_uws_match(bnr)
-  local bnr = bnr or fn.bufnr()
+function M.clear_uws_match(args)
+  local bnr = (args or {}).buf or fn.bufnr()
   local bname = api.nvim_buf_get_name(bnr)
   local wid = fn.bufwinid(bnr)
 
@@ -96,17 +95,20 @@ function M.get_matches_from_cache()
   M.match_uws()
 end
 
-function M.save_matches_to_cache_and_clear(bnr)
-  local bnr = bnr or fn.bufnr()
-  local bname = api.nvim_buf_get_name(bnr)
+function M.save_matches_to_cache_and_clear(args)
+  local bnr = (args or {}).buf or api.nvim_get_current_buf()
   local wid = fn.bufwinid(bnr)
+
+  if
+    wid < 0
+    or api.nvim_win_get_config(wid).relative ~= ""
+    or not api.nvim_get_option_value("modifiable", { buf = bnr }) then
+    return
+  end
+
+  local bname = api.nvim_buf_get_name(bnr)
   M.buffer_cached_matches[bname] = fn.getmatches(wid)
   M.win_group_match[bname] = nil
-
-  --- TODO: maybe add check for non-modifiable buffers?
-  if api.nvim_win_get_config(wid).relative == "" then
-    fn.clearmatches()
-  end
 end
 
 function M.no_match_cl()
