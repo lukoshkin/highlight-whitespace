@@ -12,76 +12,106 @@ M.buffer_cached_matches = {}
 M.win_group_match = {}
 M.win_cl_match = {}
 
-local function is_in_match_groups(gname, wid)
-  local wid = wid or api.nvim_get_current_win()
-  local match_groups = vim.tbl_map(function(l)
-    return l.group
-  end, fn.getmatches(wid))
-  return vim.tbl_contains(match_groups, gname)
+local function is_untargetable(bnr, wid)
+  --- Not our target if either the buffer is not modifiable
+  --- or the window where it is displayed is not normal.
+  return api.nvim_win_get_config(wid or 0).relative ~= ""
+    or not api.nvim_get_option_value("modifiable", { buf = bnr or 0 })
 end
 
-local function two_wins_with_one_buffer_on_tabpage()
-  local wins = vim.api.nvim_tabpage_list_wins(0)
-  local buf_seen = {}
-  for _, win in ipairs(wins) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    if buf_seen[buf] then
-      return true
-    end
-    buf_seen[buf] = true
+function string:endswith(ending)
+  self = tostring(self)
+  ending = tostring(ending)
+  return ending == "" or self:sub(-#ending) == ending
+end
+
+local function in_focus_group_match_id()
+  local bname = api.nvim_buf_get_name(0)
+  local wid = api.nvim_get_current_win()
+  return bname .. "__" .. wid
+end
+
+local function strip_wid(id, wid)
+  wid = tostring(wid)
+  return id:sub(1, #id - #wid - 2)
+end
+
+-- local function is_in_match_groups(gname, wid)
+--   local wid = wid or api.nvim_get_current_win()
+--   local match_groups = vim.tbl_map(function(l)
+--     return l.group
+--   end, fn.getmatches(wid))
+--   return vim.tbl_contains(match_groups, gname)
+-- end
+
+function M.cache_and_clear_uws_match(opts)
+  opts = opts or {}
+  opts.target = opts.target or "current"
+  if not vim.tbl_contains({ "current", "all_but_current" }, opts.target) then
+    error "Impl.error: opts.target must be 'current' or 'all_but_current'"
   end
-  return false
-end
 
-function M.clear_uws_match(args)
-  local bnr = (args or {}).buf or fn.bufnr()
-  local bname = api.nvim_buf_get_name(bnr)
-  local wid = fn.bufwinid(bnr)
-
-  if M.win_group_match[bname] then
-    api.nvim_win_call(wid, function()
-      for gname, mid in pairs(M.win_group_match[bname]) do
-        M.win_group_match[bname][gname] = nil
-        if is_in_match_groups(gname, wid) then
-          fn.matchdelete(mid, wid)
-        end
+  local this_ft = api.nvim_get_option_value("filetype", { buf = 0 })
+  local this_wid = api.nvim_get_current_win()
+  -- print("registered for", opts.target, ":", vim.inspect(M.win_group_match))
+  -- print("matches:", vim.inspect(fn.getmatches()))
+  for id, ft_matches in pairs(M.win_group_match) do
+    local bname
+    if id:endswith(this_wid) then
+      bname = strip_wid(id, this_wid)
+    else
+      goto skip_id
+    end
+    for ft, matches in pairs(ft_matches) do
+      if opts.target == "current" and ft == this_ft then
+        M.buffer_cached_matches[bname] = fn.getmatches()
+        goto continue
       end
-    end)
+
+      if opts.target ~= "current" and ft ~= this_ft then
+        goto continue
+      end
+
+      goto skip_ft
+      ::continue::
+      for _, mid in pairs(matches) do
+        fn.matchdelete(mid)
+      end
+      M.win_group_match[id][ft] = nil
+      M.buffer_cached_matches[bname] = nil
+      ::skip_ft::
+    end
+    ::skip_id::
   end
 end
 
 function M.match_uws()
-  local ft = api.nvim_buf_get_option(0, "filetype")
+  local ft = api.nvim_get_option_value("filetype", { buf = 0 })
   local uws_pat_list = M.cfg.palette[ft] or M.cfg.palette["other"]
-  local uws_pattern = table.concat(vim.tbl_keys(uws_pat_list), "\\|")
 
-  --- Do not continue if the current win is not modifiable or not normal,
-  --- there is no unwanted whitespace in the buffer,
-  --- or the buffer filetype is blacklisted.
-  if
-    not vim.opt.modifiable:get()
-    or api.nvim_win_get_config(0).relative ~= ""
-    or vim.tbl_contains(M.cfg.filetype_blacklist, ft)
-    or fn.search(uws_pattern, "nw") == 0
-  then
+  if is_untargetable() then
     return
   end
 
-  if two_wins_with_one_buffer_on_tabpage() then
-    M.clear_uws_match()
-  end
-
-  local bname = api.nvim_buf_get_name(0)
-  M.win_group_match[bname] = M.win_group_match[bname] or {}
+  local id = in_focus_group_match_id()
+  M.win_group_match[id] = M.win_group_match[id] or {}
   api.nvim_buf_clear_namespace(0, M.ns_id, 0, -1)
 
   for pat, color in pairs(uws_pat_list) do
+    if fn.search(pat, "nw") == 0 then
+      goto skip
+    end
+
+    M.win_group_match[id][ft] = M.win_group_match[id][ft] or {}
+    local local_matches = M.win_group_match[id][ft]
     local gname = "HWS_" .. color:gsub("#", "")
-    if not M.win_group_match[bname][gname] then
-      M.win_group_match[bname][gname] = fn.matchadd(gname, pat, 10) -- default priority is 10
+    if local_matches[gname] == nil then
+      local_matches[gname] = fn.matchadd(gname, pat, 10)
+      --- The default priority is already 10, but let's be explicit
     end
     api.nvim_set_hl(M.ns_id, gname, { bg = color })
     api.nvim_win_set_hl_ns(0, M.ns_id)
+    ::skip::
   end
 end
 
@@ -93,22 +123,6 @@ function M.get_matches_from_cache()
     return
   end
   M.match_uws()
-end
-
-function M.save_matches_to_cache_and_clear(args)
-  local bnr = (args or {}).buf or api.nvim_get_current_buf()
-  local wid = fn.bufwinid(bnr)
-
-  if
-    wid < 0
-    or api.nvim_win_get_config(wid).relative ~= ""
-    or not api.nvim_get_option_value("modifiable", { buf = bnr }) then
-    return
-  end
-
-  local bname = api.nvim_buf_get_name(bnr)
-  M.buffer_cached_matches[bname] = fn.getmatches(wid)
-  M.win_group_match[bname] = nil
 end
 
 function M.no_match_cl()
@@ -133,10 +147,8 @@ end
 function M.clear_no_match_cl()
   local wid = api.nvim_get_current_win()
   if M.win_cl_match[wid] then
-    if is_in_match_groups "CL_TWS" then
-      fn.matchdelete(M.win_cl_match[wid])
-      M.win_cl_match[wid] = nil
-    end
+    fn.matchdelete(M.win_cl_match[wid])
+    M.win_cl_match[wid] = nil
   end
 
   --- Update UWS matches after leaving the insert mode

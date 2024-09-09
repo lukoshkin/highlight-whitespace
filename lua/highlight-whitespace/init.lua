@@ -1,11 +1,11 @@
 local core = require "highlight-whitespace.core"
-local wrap_fn = require "highlight-whitespace.wrap_fn"
 local utils = require "highlight-whitespace.utils"
 local api = vim.api
 local M = {}
 
 function M.setup(cfg)
-  core.cfg = vim.tbl_extend("keep", cfg or {}, utils.default)
+  cfg = cfg or {}
+  core.cfg = utils.extend_palette_consciously(cfg)
   utils.check_deprecated(core.cfg)
   utils.check_config_conforms(core.cfg)
   utils.check_colors(core.cfg)
@@ -19,22 +19,32 @@ function M.setup(cfg)
   local create_autocmd = function(events, callback)
     api.nvim_create_autocmd(events, {
       callback = function(args)
-        callback(args)
+        local ft = vim.bo.filetype
+        local fts = vim.tbl_keys(core.cfg.palette)
+        if
+          (
+            vim.tbl_contains(fts, ft)
+            or not vim.tbl_isempty(core.cfg.palette.other)
+          ) and utils.is_valid_buftype(args.buf)
+        then
+          callback(args)
+        end
       end,
       group = aug_hws,
     })
   end
 
-  local match_uws_events = { "TextChanged", "CompleteDone" }
   if core.cfg.clear_on_bufleave then
-    create_autocmd("BufLeave", core.clear_uws_match)
-    table.insert(match_uws_events, "BufEnter")
+    create_autocmd("BufLeave", core.cache_and_clear_uws_match)
+  else
+    create_autocmd("BufEnter", function()
+      core.cache_and_clear_uws_match { target = "all_but_current" }
+    end)
   end
-  create_autocmd(match_uws_events, wrap_fn.match_uws)
-  create_autocmd("BufWinEnter", wrap_fn.get_matches_from_cache)
-  create_autocmd("BufHidden", wrap_fn.save_matches_to_cache_and_clear)
-  create_autocmd({ "InsertEnter", "CursorMovedI" }, wrap_fn.no_match_cl)
-  create_autocmd("InsertLeave", wrap_fn.clear_no_match_cl)
+  create_autocmd({ "TextChanged", "CompleteDone" }, core.match_uws)
+  create_autocmd({ "BufEnter", "WinEnter" }, core.get_matches_from_cache)
+  create_autocmd({ "InsertEnter", "CursorMovedI" }, core.no_match_cl)
+  create_autocmd("InsertLeave", core.clear_no_match_cl)
   create_autocmd("QuitPre", core.prune_dicts)
   M._set_up = true
 end

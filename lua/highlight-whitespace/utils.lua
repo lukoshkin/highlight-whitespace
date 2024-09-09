@@ -4,7 +4,6 @@ local api = vim.api
 M.default = {
   tws = "\\s\\+$",
   clear_on_bufleave = false,
-  filetype_blacklist = {},
   palette = {
     markdown = {
       tws = "RosyBrown",
@@ -22,6 +21,19 @@ M.default = {
     },
   },
 }
+
+function M.two_wins_with_one_buffer_on_tabpage()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+  local buf_seen = {}
+  for _, win in ipairs(wins) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if buf_seen[buf] then
+      return true
+    end
+    buf_seen[buf] = true
+  end
+  return false
+end
 
 local function is_valid_color(color)
   local is_valid = api.nvim_get_color_by_name(color) ~= -1
@@ -66,9 +78,19 @@ function M.check_config_conforms(cfg)
 end
 
 function M.check_deprecated(cfg)
+  if cfg.filetype_blacklist ~= nil then
+    vim.notify(
+      " `filetype_blacklist` option is deprecated!\n Just specify an empty"
+        .. "table palette option for a filetype you'd like to ignore.\n For "
+        .. "example, to ignore the plugin highlighting in markdown\n\n"
+        .. " ```lua\n palette = {\n\tmarkdown = {},\n\t...\n }\n ```",
+      vim.log.levels.WARN,
+      { title = "highlight-whitespace" }
+    )
+  end
   if cfg.user_palette ~= nil then
     vim.notify(
-      " `user_palette` key is deprecated! Use `palette` instead.",
+      " `user_palette` option is deprecated! Use `palette` instead.",
       vim.log.levels.WARN,
       { title = "highlight-whitespace" }
     )
@@ -81,11 +103,20 @@ function M.check_deprecated(cfg)
   end
 end
 
--- function M.only_normal_windows()
---   local normal_windows = vim.tbl_filter(function(key)
---     return api.nvim_win_get_config(key).relative == ""
---   end, api.nvim_tabpage_list_wins(0))
---   return normal_windows
--- end
+function M.extend_palette_consciously(cfg)
+  local upd_cfg = vim.tbl_extend("keep", cfg or {}, M.default)
+  --- `tbl_deep_extend` will extend palette inappropriately
+  for ft, pattern in pairs(M.default.palette) do
+    if upd_cfg.palette[ft] == nil then
+      upd_cfg.palette[ft] = pattern
+    end
+  end
+  return upd_cfg
+end
+
+function M.is_valid_buftype(buf)
+  local buftype = api.nvim_get_option_value("buftype", { buf = buf })
+  return not vim.tbl_contains({"nofile", "prompt", "terminal"}, buftype)
+end
 
 return M
