@@ -1,5 +1,5 @@
 local core = require "highlight-whitespace.core"
-local utils = require "highlight-whitespace.utils"
+local utils = require "highlight-whitespace.init_utils"
 local api = vim.api
 local M = {}
 
@@ -45,7 +45,6 @@ function M.setup(cfg)
   create_autocmd({ "BufEnter", "WinEnter" }, core.get_matches_from_cache)
   create_autocmd({ "InsertEnter", "CursorMovedI" }, core.no_match_cl)
   create_autocmd("InsertLeave", core.clear_no_match_cl)
-  create_autocmd("QuitPre", core.prune_dicts)
   M._set_up = true
 end
 

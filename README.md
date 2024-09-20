@@ -4,45 +4,8 @@
 
 Go to the [Current Colorscheme](#current-colorscheme) section
 to see what each color stands for.  
-(Unfortunately placing it here breaks syntax
-highlighting for all multi-line code blocks below it)
-
-<!-- It breaks syntax highlighting of the code blocks below it for some reason
-$${\color{PaleVioletRed}red}\text{ color
-─ trailing whitespace in python (other than md)}$$
-
-$${\color{RosyBrown}brown}\text{ ─ in markdown}$$
-
----
-
-$${\color{#CDBE70}yellow}\text{ color
-─ redundant (multiple) spaces in python}$$
-
-$${\color{#87CEFF}blue}\text{ ─ in markdown}$$
-
----
-
-$${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$$
-
-$${\color{#7AC5CD}"green"}\text{ ─ in markdown}$$
-
----
-
-$${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$$
---->
-
-<!-- Also works for text coloring (but not center-aligned and also breaks highlighting)
-${\color{PaleVioletRed}red}\text{ color ─ trailing whitespace in python (other than md)}$
-${\color{RosyBrown}brown}\text{ ─ in markdown}$
-
-${\color{#CDBE70}yellow}\text{ color ─ redundant (multiple) spaces in python}$
-${\color{#87CEFF}blue}\text{ ─ in markdown}$
-
-${\color{#FF7256}orange}\text{ color ─ a space before a comma in python}$
-${\color{#7AC5CD}"green"}\text{ ─ in markdown}$
-
-${\color{#8B668B}purple}\text{ color ─ tab indents instead of spaces}$
---->
+<sub><sup>(Unfortunately placing it here breaks syntax
+highlighting for all multi-line code blocks below it)</sup></sub>
 
 ## Installation
 
@@ -61,6 +24,7 @@ With [**packer.nvim**](https://github.com/wbthomason/packer.nvim)
 use "lukoshkin/highlight-whitespace"
 ```
 
+<!--
 With [**vim-plug**](https://github.com/junegunn/vim-plug)
 
 ```vim
@@ -68,21 +32,39 @@ Plug 'lukoshkin/highlight-whitespace', { 'branch': 'vimscript' }
 ```
 
 One can adapt the installation code for other plugin managers!
+-->
 
 ## Customization
 
+<!--
 Two ways to configure depending on the selected branch
 
-<!-- Omitting a punctuation at the end emphasizes the direction of meaning -->
+<details>
+<summary><Big><b>vimscript</b> (obsolete)</Big></summary>
+Note you must specify both <code>ctermbg</code> and <code>guibg</code> values,
+even if you don't care about one of them. <br> Specifying other than
+<code>bg</code> keys has no effect.
+
+```vim
+let g:tws_pattern = '\s\+$'
+let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
+let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
+```
+
+</details>
 
 <details open>
 <summary><Big><b>master (Lua)</b></Big></summary>
 For the Lua implementation, the functionality is much wider.<br>One can
 specify a color for each pattern and per filetype. It can be a regular color
 name or hex code.
+-->
 
-<ul>
-<li><details open>
+`tws` keyword - "main" pattern for trailing whitespace highlighting  
+`clear_on_bufleave` - boolean opt to clear highlighting in the current buffer
+before switching to another
+
+<details open>
 <summary>lazy.nvim</summary>
 
 ```lua
@@ -111,8 +93,8 @@ name or hex code.
 }
 ```
 
-</details></li>
-<li><details>
+</details>
+<details>
 <summary>packer.nvim</summary>
 
 ```lua
@@ -143,84 +125,37 @@ use {
 }
 ```
 
-</details></li>
-</ul>
-
-`tws` - main pattern for trailing whitespace  
-`clear_on_bufleave` - clear highlighting in the old buffer before switching to
-another
-
 </details>
 
-<details>
-<summary><Big><b>vimscript</b></Big></summary>
-Note you must specify both <code>ctermbg</code> and <code>guibg</code> values,
-even if you don't care about one of them. <br> Specifying other than
-<code>bg</code> keys has no effect.
+### Ignoring filetypes
 
-```vim
-let g:tws_pattern = '\s\+$'
-let g:tws_color_md = { 'ctermbg': 138, 'guibg': 'RosyBrown' }
-let g:tws_color_any = { 'ctermbg': 211, 'guibg': 'PaleVioletRed' }
+Ignoring specific filetypes is possible by setting an empty table next to a
+filetype in the `palette`.
+
+To highlight only python and markdown filetypes
+
+```lua
+      palette = {
+        python = {
+          -- some patterns
+        },
+        markdown = {
+          -- some patterns
+        },
+        other = {},
+      }
 ```
 
-</details>
+To ignore highlighting only in javascript
 
-## Future Development
-
-- :heavy_check_mark: ~~It is possible to highlight tabs by specifying `patterns
-= { '\\s\\+$', '\\t\\+' }`. <br> In future patches, the customization will
-  also allow setting a color for each pattern, e.g., in the palette table:~~
-
-  ```lua
-  palette = { python = {['\\s\\+$'] = 'PaleVioletRed', ['\\t\\+'] = 'plum4'} }
-  ```
-
-- I have a function for trimming trailing whitespace in my "vimrc"
-  configuration. Adding a similar one for trimming any unwanted whitespace
-  (including tabs and etc.) to the plugin is under the question.
-
-- The approach with `matchadd` + `matchdelete` + `nvim_set_hl` might be not the
-  most optimal. One of the other options to test will be looping over each line
-  of a document looking for a pattern (lua's `string.find` or vim's
-  `matchstrpos`) and then dynamically adding highlighting with
-  `nvim_buf_add_highlight`.
-
-## Story
-
-**_Why to create another HWS plugin?_**  
-(I refer to my plugin as `HighlightWS`, and similar others ─ as HWS.)
-
- <!-- 'and' is used ↑ here as 'while' -->
-
-1. `HighlightWS` leverages `matchadd` instead of `match`.
-1. Trailing whitespace in markdown files is highlighted with a different color.
-1. Written in Lua. Vimscript version is also available.
-1. I was configuring my vimrc, I didn't know about existing plugins.
-1. It is highly customizable!
-
-Let's talk about each point separately.
-
-1. `match` function provides for creating just three matches (i.e., using
-   `match`, `2match`, `3match`). Better not to occupy them, if one can achieve
-   the same goals with `matchadd`.
-
-1. Trailing whitespace in markdown files is not a bad thing and sometimes is
-   even a necessity. Thus, more mild colors than red should be used.
-
-1. Though the topic of Lua in Neovim is trending and may seem overhyped in some
-   aspects, the fact that it is a Lua plugin is convenient for those who are
-   not familiar with VimL and definitely handy for Lua programmers. Note there
-   is also a Vimscript version on a separate branch for plugin managers that do
-   not treat Lua code (it is a bit outdated, though).
-
-1. Don't do that. I was not going to create a new plugin, though I ended up
-   writing it. Googling _trailing whitespace vim_ terminated on [the first link
-   ](https://vim.fandom.com/wiki/Remove_unwanted_spaces). By the way, the
-   mentioned there tips are just 'tips', as written.
-
-1. Actually, it is much wider than just highlighting whitespace. You can come
-   up with your own pattern and color specifically for each filetype.
+```lua
+      palette = {
+        javascript = {},
+        other = {
+          -- some patterns
+        },
+      }
+```
 
 ## Current Colorscheme
 

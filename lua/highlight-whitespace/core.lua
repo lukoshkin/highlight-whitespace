@@ -2,6 +2,7 @@
 --- cl - current line
 --- (u|h|t)ws - (unwanted|highlight|trailing) whitespace
 
+local utils = require "highlight-whitespace.core_utils"
 local api = vim.api
 local fn = vim.fn
 
@@ -11,38 +12,6 @@ M.buffer_cached_matches = {}
 --- Note matches are bound to a window, however, I associate them to a buffer
 M.win_group_match = {}
 M.win_cl_match = {}
-
-local function is_untargetable(bnr, wid)
-  --- Not our target if either the buffer is not modifiable
-  --- or the window where it is displayed is not normal.
-  return api.nvim_win_get_config(wid or 0).relative ~= ""
-    or not api.nvim_get_option_value("modifiable", { buf = bnr or 0 })
-end
-
-function string:endswith(ending)
-  self = tostring(self)
-  ending = tostring(ending)
-  return ending == "" or self:sub(-#ending) == ending
-end
-
-local function in_focus_group_match_id()
-  local bname = api.nvim_buf_get_name(0)
-  local wid = api.nvim_get_current_win()
-  return bname .. "__" .. wid
-end
-
-local function strip_wid(id, wid)
-  wid = tostring(wid)
-  return id:sub(1, #id - #wid - 2)
-end
-
--- local function is_in_match_groups(gname, wid)
---   local wid = wid or api.nvim_get_current_win()
---   local match_groups = vim.tbl_map(function(l)
---     return l.group
---   end, fn.getmatches(wid))
---   return vim.tbl_contains(match_groups, gname)
--- end
 
 function M.cache_and_clear_uws_match(opts)
   opts = opts or {}
@@ -58,7 +27,7 @@ function M.cache_and_clear_uws_match(opts)
   for id, ft_matches in pairs(M.win_group_match) do
     local bname
     if id:endswith(this_wid) then
-      bname = strip_wid(id, this_wid)
+      bname = utils.strip_wid(id, this_wid)
     else
       goto skip_id
     end
@@ -89,11 +58,11 @@ function M.match_uws()
   local ft = api.nvim_get_option_value("filetype", { buf = 0 })
   local uws_pat_list = M.cfg.palette[ft] or M.cfg.palette["other"]
 
-  if is_untargetable() then
+  if utils.is_untargetable() then
     return
   end
 
-  local id = in_focus_group_match_id()
+  local id = utils.group_in_focus_match_id()
   M.win_group_match[id] = M.win_group_match[id] or {}
   api.nvim_buf_clear_namespace(0, M.ns_id, 0, -1)
 
@@ -153,13 +122,6 @@ function M.clear_no_match_cl()
 
   --- Update UWS matches after leaving the insert mode
   M.match_uws()
-end
-
-function M.prune_dicts()
-  --- No need to check the win is normal, right?
-  --- Though, we don't create a kw-pair in table for non-normal wins.
-  M.win_cl_match[api.nvim_get_current_win()] = nil
-  M.win_group_match[api.nvim_buf_get_name(0)] = nil
 end
 
 return M
