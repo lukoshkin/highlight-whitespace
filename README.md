@@ -1,5 +1,13 @@
 # Highlight Whitespace
 
+Highlight unwanted whitespace across you project files. The fun part is that
+you can come up with your own palette of colors used for a specific pattern
+per a filetype!
+
+---
+
+Почитать на [русском :ru:](/README.ru.md)
+
 ![demo](./demo.gif)
 
 Go to the [Current Colorscheme](#current-colorscheme) section
