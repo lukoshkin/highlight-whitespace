@@ -15,6 +15,11 @@ function M.setup(cfg)
     ft.tws = nil
   end, core.cfg.palette)
 
+-- Test "unwanted" patterns
+	    --some
+      
+	    
+    
   local aug_hws = api.nvim_create_augroup("HighlightWS", {})
   local create_autocmd = function(events, callback)
     api.nvim_create_autocmd(events, {
@@ -34,17 +39,19 @@ function M.setup(cfg)
     })
   end
 
-  if core.cfg.clear_on_bufleave then
-    create_autocmd("BufLeave", core.cache_and_clear_uws_match)
-  else
-    create_autocmd("BufEnter", function()
-      core.cache_and_clear_uws_match { target = "all_but_current" }
-    end)
-  end
-  create_autocmd({ "TextChanged", "CompleteDone" }, core.match_uws)
-  create_autocmd({ "BufEnter", "WinEnter" }, core.get_matches_from_cache)
-  create_autocmd({ "InsertEnter", "CursorMovedI" }, core.no_match_cl)
-  create_autocmd("InsertLeave", core.clear_no_match_cl)
+  -- if core.cfg.clear_on_bufleave then
+  --   create_autocmd("BufLeave", core.cache_and_clear_uws_match)
+  -- else
+  --   create_autocmd("BufEnter", function()
+  --     core.cache_and_clear_uws_match { target = "all_but_current" }
+  --   end)
+  -- end
+  create_autocmd({ "BufEnter", "CursorMoved", "TextChanged", "CompleteDone" }, core.match_uws)
+  create_autocmd("InsertLeave", core.match_uws)
+  create_autocmd(
+    { "InsertEnter", "CursorMovedI" },
+    core.unmatch_line_after_cursor
+  )
   M._set_up = true
 end
 
