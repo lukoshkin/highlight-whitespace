@@ -22,19 +22,6 @@ M.default = {
   },
 }
 
-function M.two_wins_with_one_buffer_on_tabpage()
-  local wins = vim.api.nvim_tabpage_list_wins(0)
-  local buf_seen = {}
-  for _, win in ipairs(wins) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    if buf_seen[buf] then
-      return true
-    end
-    buf_seen[buf] = true
-  end
-  return false
-end
-
 local function is_valid_color(color)
   local is_valid = api.nvim_get_color_by_name(color) ~= -1
   if is_valid then
@@ -48,7 +35,8 @@ end
 
 function M.check_colors(cfg)
   local colors = vim.tbl_values(vim.tbl_map(vim.tbl_values, cfg.palette))
-  local booleans = vim.tbl_map(is_valid_color, vim.tbl_flatten(colors))
+  colors = vim.iter(colors):flatten():totable()
+  local booleans = vim.tbl_map(is_valid_color, colors)
 
   if vim.tbl_contains(booleans, false) then
     cfg.palette = M.default.palette
@@ -116,7 +104,7 @@ end
 
 function M.is_valid_buftype(buf)
   local buftype = api.nvim_get_option_value("buftype", { buf = buf })
-  return not vim.tbl_contains({"nofile", "prompt", "terminal"}, buftype)
+  return not vim.tbl_contains({ "nofile", "prompt", "terminal" }, buftype)
 end
 
 return M
