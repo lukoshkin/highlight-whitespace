@@ -6,7 +6,7 @@ per a filetype!
 
 ---
 
-Почитать на [русском :ru:](/README.ru.md)
+Читать на [русском :ru:](/README.ru.md)
 
 ![demo](./demo.gif)
 
@@ -41,6 +41,25 @@ Plug 'lukoshkin/highlight-whitespace', { 'branch': 'vimscript' }
 
 One can adapt the installation code for other plugin managers!
 -->
+
+## Implementation Details
+
+The plugin implements an efficient and flexible approach to "undesired" patterns highlighting:
+
+- **Smart Window Rendering** - Scans only the visible part of the buffer to minimize performance impact
+- **Regex-Based Pattern Matching** - Uses Neovim's regex engine as a compromise between Lua regex and pure regex
+- **Extmarks for Highlighting** - Leverages Neovim's extmark API for efficient, non-intrusive highlighting
+- **Context-Aware Highlighting** - Disables highlighting in insert mode at cursor position for better UX
+- **Namespace-Based Management** - Uses separate highlight namespace to avoid conflicts with other plugins
+- **Filetype-Specific Customization** - Allows different highlighting patterns and colors per filetype
+
+Highlighting priorities are organized hierarchically:
+
+- Trailing whitespace - 10
+- Trailing whitespace override (till cursor position) - 11
+- Other pattern highlighting - 12
+
+The core implementation uses Neovim's API for all operations, making it performant even in large files.
 
 ## Customization
 
