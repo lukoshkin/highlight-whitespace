@@ -4,10 +4,12 @@ local api = vim.api
 
 function M.is_untargetable_content(bnr, wid)
   --- Return true if either the buffer is not modifiable
-  --- or the window where it is displayed is not normal.
+  --- or the window where it is displayed is not normal
+  --- or there is no filetype.
   --- Otherwise, false is returned.
   return api.nvim_win_get_config(wid or 0).relative ~= ""
     or not api.nvim_get_option_value("modifiable", { buf = bnr or 0 })
+    or api.nvim_get_option_value("filetype", { buf = 0 }) == ""
 end
 
 function string:endswith(ending)
